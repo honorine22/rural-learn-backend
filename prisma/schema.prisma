@@ -1,0 +1,286 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model UserProfile {
+    id: number;
+    bio: string;
+    location: string;
+    phoneNumber: string;
+    profilePicture: string;
+    dateOfBirth: Date;
+    gender: string;
+    education: string;
+    occupation: string;
+    interests: string;
+    language: string;
+    totalLearningHours: number;
+    totalCoursesCompleted: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model AchievementType {
+    id: number;
+    code: string;
+    name: string;
+    description: string;
+    icon: string;
+    badgeImage: string;
+    triggerEvent: string;
+    points: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model Achievement {
+    id: number;
+    user: User;
+    type: AchievementType;
+    data: any;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model ChatMessageDto {
+    message: string;
+}
+
+model DateRangeDto {
+    startDate?: string;
+    endDate?: string;
+}
+
+model SystemMetric {
+    id: number;
+    timestamp: Date;
+    responseTime: number;
+    cpuUsage: number;
+    memoryUsage: number;
+    requestCount: number;
+    errorCount: number;
+    createdAt: Date;
+}
+
+model UserActivity {
+    id: number;
+    user: User;
+    userId: number;
+    timestamp: Date;
+    action: string;
+    resourceType: string;
+    resourceId: number;
+    sessionDuration: number;
+    ipAddress: string;
+    userAgent: string;
+    createdAt: Date;
+}
+
+model LoginDto {
+    email: string;
+    password: string;
+}
+
+model RegisterDto {
+    name: string;
+    email: string;
+    password: string;
+}
+
+
+model Notification {
+    id: number;
+    user: User;
+    title: string;
+    message: string;
+    type: string;
+    data: any;
+    isRead: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model NotificationTemplate {
+    id: number;
+    type: string;
+    title: string;
+    message: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model Post {
+    id: number;
+    content: string;
+    upvotes: number;
+    downvotes: number;
+    isAcceptedAnswer: boolean;
+    author: User;
+    topic: Topic;
+    replies: Reply[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model Reply {
+    id: number;
+    content: string;
+    upvotes: number;
+    downvotes: number;
+    author: User;
+    post: Post;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model Topic {
+    id: number;
+    title: string;
+    description: string;
+    isActive: boolean;
+    isPinned: boolean;
+    viewCount: number;
+    creator: User;
+    course: Course;
+    posts: Post[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model CourseEnrollment {
+    id: number;
+    user: User;
+    course: Course;
+    status: string;
+    completedAt: Date;
+    progress: CourseProgress;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model CourseLesson {
+    id: number;
+    title: string;
+    description: string;
+    order: number;
+    type: string;
+    content: string;
+    videoUrl: string;
+    duration: string;
+    isPreview: boolean;
+    section: CourseSection;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model CourseProgress {
+    id: number;
+    enrollment: CourseEnrollment;
+    completedLessons: number[];
+    currentLesson: number;
+    progressPercentage: number;
+    totalTimeSpent: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model CourseReview {
+    id: number;
+    rating: number;
+    comment: string;
+    user: User;
+    course: Course;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model CourseSection {
+    id: number;
+    title: string;
+    description: string;
+    order: number;
+    course: Course;
+    lessons: CourseLesson[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model PaginationDto {
+    page?: number;
+    limit?: number;
+}
+
+model GenerateCertificateDto {
+    courseId: number;
+}
+
+model CertificateTemplate {
+    id: number;
+    name: string;
+    description: string;
+    backgroundImage: string;
+    isDefault: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model Certificate {
+    id: number;
+    user: User;
+    course: Course;
+    template: CertificateTemplate;
+    certificateNumber: string;
+    issueDate: Date;
+    data: any;
+    createdAt: Date;
+    updatedAt: Date;
+}
+model Course {
+    id: number;
+    title: string;
+    description: string;
+    thumbnail: string;
+    status: string;
+    price: number;
+    duration: string;
+    tags: string[];
+    level: string;
+    enrollmentCount: number;
+    completionCount: number;
+    averageRating: number;
+    reviewCount: number;
+    instructor: User;
+    sections: CourseSection[];
+    enrollments: CourseEnrollment[];
+    reviews: CourseReview[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+model User {
+    id: number;
+    name: string;
+    email: string;
+    password: string;
+    roles: string[];
+    isActive: boolean;
+    profile: UserProfile;
+    enrollments: CourseEnrollment[];
+    instructedCourses: Course[];
+    achievements: Achievement[];
+    certificates: Certificate[];
+    notifications: Notification[];
+    createdAt: Date;
+    updatedAt: Date;
+}
