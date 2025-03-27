@@ -31,13 +31,10 @@ import { RolesGuard } from "./auth/guards/roles.guard"
     AiModule,
   ],
   controllers: [AppController],
-  providers: [AppService,  Reflector,{
-    provide: APP_GUARD,
-    useClass: JwtAuthGuard, // Global JWT guard
-  },
-  {
-    provide: APP_GUARD,
-    useClass: RolesGuard, // Global Role-based guard
-  },],
+  providers: [AppService, Reflector,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard, // Global Role-based guard
+    },],
 })
-export class AppModule {}
+export class AppModule { }
