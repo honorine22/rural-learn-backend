@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,273 +8,291 @@ datasource db {
 }
 
 model UserProfile {
-    id: number;
-    bio: string;
-    location: string;
-    phoneNumber: string;
-    profilePicture: string;
-    dateOfBirth: Date;
-    gender: string;
-    education: string;
-    occupation: string;
-    interests: string;
-    language: string;
-    totalLearningHours: number;
-    totalCoursesCompleted: number;
-    createdAt: Date;
-    updatedAt: Date;
+  id                    Int       @id @default(autoincrement())
+  bio                   String?
+  location              String?
+  phoneNumber           String?
+  profilePicture        String?
+  dateOfBirth           DateTime?
+  gender                String?
+  education             String?
+  occupation            String?
+  interests             String?
+  language              String?
+  totalLearningHours    Int       @default(0)
+  totalCoursesCompleted Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
 }
 
 model AchievementType {
-    id: number;
-    code: string;
-    name: string;
-    description: string;
-    icon: string;
-    badgeImage: string;
-    triggerEvent: string;
-    points: number;
-    createdAt: Date;
-    updatedAt: Date;
+  id           Int      @id @default(autoincrement())
+  code         String   @unique
+  name         String
+  description  String?
+  icon         String?
+  badgeImage   String?
+  triggerEvent String?
+  points       Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  achievements Achievement[]
 }
 
 model Achievement {
-    id: number;
-    user: User;
-    type: AchievementType;
-    data: any;
-    createdAt: Date;
-    updatedAt: Date;
-}
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  typeId    Int
+  data      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-model ChatMessageDto {
-    message: string;
-}
-
-model DateRangeDto {
-    startDate?: string;
-    endDate?: string;
+  user User            @relation(fields: [userId], references: [id])
+  type AchievementType @relation(fields: [typeId], references: [id])
 }
 
 model SystemMetric {
-    id: number;
-    timestamp: Date;
-    responseTime: number;
-    cpuUsage: number;
-    memoryUsage: number;
-    requestCount: number;
-    errorCount: number;
-    createdAt: Date;
+  id           Int      @id @default(autoincrement())
+  timestamp    DateTime @default(now())
+  responseTime Float
+  cpuUsage     Float
+  memoryUsage  Float
+  requestCount Int
+  errorCount   Int
+  createdAt    DateTime @default(now())
 }
 
 model UserActivity {
-    id: number;
-    user: User;
-    userId: number;
-    timestamp: Date;
-    action: string;
-    resourceType: string;
-    resourceId: number;
-    sessionDuration: number;
-    ipAddress: string;
-    userAgent: string;
-    createdAt: Date;
-}
+  id              Int      @id @default(autoincrement())
+  userId          Int
+  timestamp       DateTime @default(now())
+  action          String
+  resourceType    String
+  resourceId      Int
+  sessionDuration Int
+  ipAddress       String
+  userAgent       String
+  createdAt       DateTime @default(now())
 
-model LoginDto {
-    email: string;
-    password: string;
+  user User @relation(fields: [userId], references: [id])
 }
-
-model RegisterDto {
-    name: string;
-    email: string;
-    password: string;
-}
-
 
 model Notification {
-    id: number;
-    user: User;
-    title: string;
-    message: string;
-    type: string;
-    data: any;
-    isRead: boolean;
-    createdAt: Date;
-    updatedAt: Date;
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  type      String
+  data      Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 model NotificationTemplate {
-    id: number;
-    type: string;
-    title: string;
-    message: string;
-    createdAt: Date;
-    updatedAt: Date;
+  id        Int      @id @default(autoincrement())
+  type      String
+  title     String
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
-    id: number;
-    content: string;
-    upvotes: number;
-    downvotes: number;
-    isAcceptedAnswer: boolean;
-    author: User;
-    topic: Topic;
-    replies: Reply[];
-    createdAt: Date;
-    updatedAt: Date;
+  id               Int      @id @default(autoincrement())
+  content          String
+  upvotes          Int      @default(0)
+  downvotes        Int      @default(0)
+  isAcceptedAnswer Boolean  @default(false)
+  authorId         Int
+  topicId          Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  author  User    @relation(fields: [authorId], references: [id])
+  topic   Topic   @relation(fields: [topicId], references: [id])
+  replies Reply[]
 }
 
 model Reply {
-    id: number;
-    content: string;
-    upvotes: number;
-    downvotes: number;
-    author: User;
-    post: Post;
-    createdAt: Date;
-    updatedAt: Date;
+  id        Int      @id @default(autoincrement())
+  content   String
+  upvotes   Int      @default(0)
+  downvotes Int      @default(0)
+  authorId  Int
+  postId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+  post   Post @relation(fields: [postId], references: [id])
 }
 
 model Topic {
-    id: number;
-    title: string;
-    description: string;
-    isActive: boolean;
-    isPinned: boolean;
-    viewCount: number;
-    creator: User;
-    course: Course;
-    posts: Post[];
-    createdAt: Date;
-    updatedAt: Date;
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  isPinned    Boolean  @default(false)
+  viewCount   Int      @default(0)
+  creatorId   Int
+  courseId    Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator User    @relation(fields: [creatorId], references: [id])
+  course  Course? @relation(fields: [courseId], references: [id])
+  posts   Post[]
 }
 
 model CourseEnrollment {
-    id: number;
-    user: User;
-    course: Course;
-    status: string;
-    completedAt: Date;
-    progress: CourseProgress;
-    createdAt: Date;
-    updatedAt: Date;
-}
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  courseId    Int
+  status      String
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-model CourseLesson {
-    id: number;
-    title: string;
-    description: string;
-    order: number;
-    type: string;
-    content: string;
-    videoUrl: string;
-    duration: string;
-    isPreview: boolean;
-    section: CourseSection;
-    createdAt: Date;
-    updatedAt: Date;
+  user     User            @relation(fields: [userId], references: [id])
+  course   Course          @relation(fields: [courseId], references: [id])
+  progress CourseProgress?
 }
 
 model CourseProgress {
-    id: number;
-    enrollment: CourseEnrollment;
-    completedLessons: number[];
-    currentLesson: number;
-    progressPercentage: number;
-    totalTimeSpent: number;
-    createdAt: Date;
-    updatedAt: Date;
+  id                 Int      @id @default(autoincrement())
+  enrollmentId       Int      @unique // Ensure it's unique for a one-to-one relation
+  completedLessons   Int[]
+  currentLesson      Int
+  progressPercentage Float
+  totalTimeSpent     Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  enrollment CourseEnrollment @relation(fields: [enrollmentId], references: [id])
 }
 
 model CourseReview {
-    id: number;
-    rating: number;
-    comment: string;
-    user: User;
-    course: Course;
-    createdAt: Date;
-    updatedAt: Date;
+  id        Int      @id @default(autoincrement())
+  rating    Int
+  comment   String
+  userId    Int
+  courseId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
 }
 
 model CourseSection {
-    id: number;
-    title: string;
-    description: string;
-    order: number;
-    course: Course;
-    lessons: CourseLesson[];
-    createdAt: Date;
-    updatedAt: Date;
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  order       Int
+  courseId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  Course         @relation(fields: [courseId], references: [id])
+  lessons CourseLesson[]
 }
 
-model PaginationDto {
-    page?: number;
-    limit?: number;
+model CourseLesson {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  order       Int
+  type        String
+  content     String?
+  videoUrl    String?
+  duration    String?
+  isPreview   Boolean  @default(false)
+  sectionId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  section CourseSection @relation(fields: [sectionId], references: [id])
 }
 
-model GenerateCertificateDto {
-    courseId: number;
-}
-
-model CertificateTemplate {
-    id: number;
-    name: string;
-    description: string;
-    backgroundImage: string;
-    isDefault: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-}
-
-model Certificate {
-    id: number;
-    user: User;
-    course: Course;
-    template: CertificateTemplate;
-    certificateNumber: string;
-    issueDate: Date;
-    data: any;
-    createdAt: Date;
-    updatedAt: Date;
-}
 model Course {
-    id: number;
-    title: string;
-    description: string;
-    thumbnail: string;
-    status: string;
-    price: number;
-    duration: string;
-    tags: string[];
-    level: string;
-    enrollmentCount: number;
-    completionCount: number;
-    averageRating: number;
-    reviewCount: number;
-    instructor: User;
-    sections: CourseSection[];
-    enrollments: CourseEnrollment[];
-    reviews: CourseReview[];
-    createdAt: Date;
-    updatedAt: Date;
+  id              Int      @id @default(autoincrement())
+  title           String
+  description     String?
+  thumbnail       String?
+  status          String
+  price           Float
+  duration        String?
+  tags            String[]
+  level           String
+  enrollmentCount Int      @default(0)
+  completionCount Int      @default(0)
+  averageRating   Float    @default(0.0)
+  reviewCount     Int      @default(0)
+  instructorId    Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  instructor  User               @relation(fields: [instructorId], references: [id])
+  sections    CourseSection[]
+  enrollments CourseEnrollment[]
+  reviews     CourseReview[]
+  Topic       Topic[]
+  Certificate Certificate[]
 }
 
 model User {
-    id: number;
-    name: string;
-    email: string;
-    password: string;
-    roles: string[];
-    isActive: boolean;
-    profile: UserProfile;
-    enrollments: CourseEnrollment[];
-    instructedCourses: Course[];
-    achievements: Achievement[];
-    certificates: Certificate[];
-    notifications: Notification[];
-    createdAt: Date;
-    updatedAt: Date;
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  roles     String[]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile           UserProfile?
+  enrollments       CourseEnrollment[]
+  instructedCourses Course[]
+  achievements      Achievement[]
+  certificates      Certificate[]
+  notifications     Notification[]
+  UserActivity      UserActivity[]
+  Post              Post[]
+  Reply             Reply[]
+  Topic             Topic[]
+  CourseReview      CourseReview[]
+}
+
+model CertificateTemplate {
+  id              Int           @id @default(autoincrement())
+  name            String
+  description     String        @db.Text
+  backgroundImage String
+  isDefault       Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  Certificate     Certificate[]
+}
+
+model Certificate {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  courseId          Int
+  templateId        Int
+  certificateNumber String   @unique
+  issueDate         DateTime
+  data              Json
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user     User                @relation(fields: [userId], references: [id])
+  course   Course              @relation(fields: [courseId], references: [id])
+  template CertificateTemplate @relation(fields: [templateId], references: [id])
 }
