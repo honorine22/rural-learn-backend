@@ -5,7 +5,8 @@ import { UpdateProgressDto } from "./dto/update-progress.dto"
 import { CreateCourseDto } from "./dto/create-course.dto"
 import { UpdateCourseDto } from "./dto/update-course.dto"
 import { PaginationDto } from "src/common/pagination.dto"
-import { EnrollmentStatus } from "./enums/course.enum"
+import { EnrollmentStatus, LessonType } from "./enums/course.enum"
+import { CourseLesson } from "./entities/course-lesson.entity"
 
 @Injectable()
 export class CoursesService {
@@ -386,28 +387,48 @@ export class CoursesService {
     return course.sections
   }
 
-  async getLessons(courseId: string) {
-    const sections = await this.prisma.courseSection.findMany({
-      where: { courseId: Number(courseId) },
-      include: {
-        lessons: {
-          orderBy: { order: 'asc' }
-        }
-      },
-      orderBy: { order: 'asc' }
-    })
+async getLessons(courseId: string) {
+  const sections = await this.prisma.courseSection.findMany({
+    where: { courseId: Number(courseId) },
+    include: {
+      lessons: {
+        orderBy: { order: 'asc' }
+      }
+    },
+    orderBy: { order: 'asc' }
+  });
 
-    const lessons = []
-    sections.forEach(section => {
-      section.lessons.forEach(lesson => {
-        lessons.push({
-          ...lesson,
-          sectionId: section.id,
-          sectionTitle: section.title
-        })
-      })
-    })
+  // Define a type that extends CourseLesson with the additional section properties
+  type LessonWithSectionInfo = CourseLesson & {
+    sectionId: string;
+    sectionTitle: string;
+  };
 
-    return lessons
-  }
+  // Initialize the array with the correct type
+  const lessons: LessonWithSectionInfo[] = [];
+
+  sections.forEach(section => {
+    section.lessons.forEach(lesson => {
+      // Create a new object with all lesson properties plus the section info
+      lessons.push({
+        id: String(lesson.id),
+        title: lesson.title,
+        description: lesson.description ?? undefined,
+        order: lesson.order,
+        type: lesson.type as LessonType,
+        content: lesson.content ?? undefined,
+        videoUrl: lesson.videoUrl ?? undefined,
+        duration: lesson.duration ?? undefined,
+        isPreview: lesson.isPreview,
+        sectionId: String(section.id),
+        createdAt: lesson.createdAt,
+        updatedAt: lesson.updatedAt,
+        // Add the additional section properties
+        sectionTitle: section.title
+      });
+    });
+  });
+
+  return lessons;
+}
 }

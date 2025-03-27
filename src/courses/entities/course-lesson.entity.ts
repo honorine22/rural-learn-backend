@@ -45,7 +45,7 @@ export class CourseLesson {
     isPreview: boolean;
 
     @ApiProperty({ type: () => CourseSection })
-    section: CourseSection;
+    section?: CourseSection;
 
     @ApiProperty({ example: "cljf8c9s50000qw3j6qw4p8x2" })
     sectionId: string;
