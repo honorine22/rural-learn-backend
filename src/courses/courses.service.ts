@@ -51,7 +51,7 @@ export class CoursesService {
     const { page = 1, limit = 10 } = paginationDto
     const skip = (page - 1) * limit
 
-    const [courses, total] = await Promise.all([
+    const courses = await Promise.all([
       this.prisma.course.findMany({
         skip,
         take: limit,
@@ -65,7 +65,7 @@ export class CoursesService {
       this.prisma.course.count()
     ])
 
-    const totalPages = await this.prisma.course.count();
+    const total = await this.prisma.course.count();
 
     return {
       data: courses,
@@ -73,7 +73,7 @@ export class CoursesService {
         total,
         page,
         limit,
-        totalPages: Math.ceil(totalPages / limit),
+        totalPages: Math.ceil(total / limit),
       },
     }
   }

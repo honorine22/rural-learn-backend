@@ -1,6 +1,6 @@
 import { Injectable, ConflictException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import * as bcrypt from 'bcryptjs'; 
+import * as bcrypt from 'bcryptjs';
 import { UsersService } from "../users/users.service";
 import { RegisterDto } from "./dto/register.dto";
 
@@ -9,16 +9,23 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && (await bcrypt.compare(password, user.password))) {
-      const { password, ...result } = user;
-      return result;
-    }
-    return null;
-  }
+    if (!user) return null; // User not found
+    
+    console.log("Database password: ", user.password); // Log the hashed password stored in the database
+    console.log("Password to check: ", password); // Log the incoming plaintext password
+  
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return null; // Password is incorrect
+    
+    const { password: _, ...result } = user; // Exclude password from response
+    
+    return result;
+  }  
+  
 
   async login(user: any) {
     const payload = { email: user.email, sub: user.id, roles: user.roles };
@@ -31,7 +38,7 @@ export class AuthService {
         roles: user.roles,
       },
     };
-  }
+  }  
 
   async register(registerDto: RegisterDto) {
     const existingUser = await this.usersService.findByEmail(registerDto.email);

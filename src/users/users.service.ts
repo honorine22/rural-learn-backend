@@ -18,27 +18,30 @@ export class UsersService {
   async findAll(paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
-
-    const [users, total] = await this.prisma.user.findMany({
+  
+    // Fetch users with pagination
+    const users = await this.prisma.user.findMany({
       skip,
       take: limit,
       include: {
         profile: true, // Including profile data
       },
     });
-
-    const totalPages = await this.prisma.user.count();
-
+  
+    // Get the total number of users in the database
+    const total = await this.prisma.user.count();
+  
     return {
       data: users,
       meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(totalPages / limit),
+        total,  // Total number of users
+        page,   // Current page
+        limit,  // Limit per page
+        totalPages: Math.ceil(total / limit), // Total pages
       },
     };
   }
+  
 
   async findOne(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({
@@ -56,9 +59,19 @@ export class UsersService {
   async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email },
+      select: { 
+        id: true,
+        email: true,
+        name: true,
+        password: true,
+        roles: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
   }
-
+  
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     const user = await this.findOne(id);
 
@@ -68,10 +81,16 @@ export class UsersService {
     });
   }
 
-  async remove(id: number): Promise<void> {
-    await this.findOne(id); // Ensure the user exists before deletion
+  async remove(id: number): Promise<{ message: string }> {
+    const user = await this.findOne(id); // Ensure user exists before deletion
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+  
     await this.prisma.user.delete({
       where: { id },
     });
-  }
+  
+    return { message: `User with ID ${id} successfully deleted` };
+  }  
 }

@@ -13,13 +13,6 @@ import { PaginationDto } from 'src/common/pagination.dto';
 export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
-    @Post()
-    @ApiOperation({ summary: 'Create a new user' })
-    @ApiResponse({ status: 201, description: 'User successfully created' })
-    create(@Body() createUserDto: CreateUserDto) {
-        return this.usersService.create(createUserDto);
-    }
-
     @Get()
     @ApiOperation({ summary: 'Get all users' })
     @ApiResponse({ status: 200, description: 'Return all users' })
@@ -36,7 +29,7 @@ export class UsersController {
     }
 
     @Patch(':id')
-    @ApiBearerAuth()
+    // @ApiBearerAuth()
     @ApiOperation({ summary: 'Update a user' })
     @ApiResponse({ status: 200, description: 'User successfully updated' })
     @ApiResponse({ status: 404, description: 'User not found' })
@@ -45,8 +38,8 @@ export class UsersController {
     }
 
     @Delete(':id')
-    @Roles('admin')
     @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @ApiOperation({ summary: 'Delete a user (Admin only)' })
     @ApiResponse({ status: 200, description: 'User successfully deleted' })
     @ApiResponse({ status: 404, description: 'User not found' })

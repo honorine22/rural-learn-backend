@@ -19,6 +19,7 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard) 
   @Roles("admin", "instructor")
   @ApiOperation({ summary: "Create a new course (Admin or Instructor)" })
   @ApiResponse({ status: 201, description: "Course successfully created" })
