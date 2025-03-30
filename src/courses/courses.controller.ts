@@ -10,6 +10,8 @@ import { Request } from "express"
 import { CreateCourseDto } from "./dto/create-course.dto"
 import { PaginationDto } from "src/common/pagination.dto"
 import { UpdateCourseDto } from "./dto/update-course.dto"
+import { CourseSection } from "./entities/course-section.entity"
+import { CourseLesson } from "./entities/course-lesson.entity"
 
 @ApiTags("courses")
 @Controller("courses")
@@ -19,7 +21,7 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) { }
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard) 
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("admin", "instructor")
   @ApiOperation({ summary: "Create a new course (Admin or Instructor)" })
   @ApiResponse({ status: 201, description: "Course successfully created" })
@@ -89,6 +91,23 @@ export class CoursesController {
   @ApiResponse({ status: 404, description: "Course not found" })
   updateProgress(@Param('id') id: string, @Body() updateProgressDto: UpdateProgressDto, @Req() req: Request) {
     return this.coursesService.updateProgress(id, updateProgressDto, req.user)
+  }
+
+  @Post(":id/sections")
+  @ApiOperation({ summary: "Add a new section to a course" })
+  @ApiResponse({ status: 201, description: "Section created successfully" })
+  @ApiResponse({ status: 404, description: "Course not found" })
+  async addSection(@Param("id") id: string, @Body() createSectionDto: CourseSection) {
+    return this.coursesService.addSection(id, createSectionDto);
+  }
+
+  // ✅ 2. Add a new lesson to a section
+  @Post("sections/:id/lessons")
+  @ApiOperation({ summary: "Add a new lesson to a section" })
+  @ApiResponse({ status: 201, description: "Lesson created successfully" })
+  @ApiResponse({ status: 404, description: "Section not found" })
+  async addLesson(@Param("id") sectionId: string, @Body() createLessonDto: CourseLesson) {
+    return this.coursesService.addLesson(sectionId, createLessonDto);
   }
 
   @Get(':id/sections')

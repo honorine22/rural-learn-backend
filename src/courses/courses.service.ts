@@ -7,21 +7,22 @@ import { UpdateCourseDto } from "./dto/update-course.dto"
 import { PaginationDto } from "src/common/pagination.dto"
 import { EnrollmentStatus, LessonType } from "./enums/course.enum"
 import { CourseLesson } from "./entities/course-lesson.entity"
+import { CourseSection } from "./entities/course-section.entity"
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createCourseDto: CreateCourseDto, user: any) {
     // Extract properties from DTO to ensure correct types
-    const { 
-      title, 
-      description, 
-      thumbnail, 
-      price, 
-      duration, 
-      tags, 
-      level 
+    const {
+      title,
+      description,
+      thumbnail,
+      price,
+      duration,
+      tags,
+      level
     } = createCourseDto;
 
     // Convert enum to string if needed
@@ -46,7 +47,7 @@ export class CoursesService {
       }
     });
   }
-  
+
   async findAll(paginationDto: PaginationDto) {
     const { page = 1, limit = 10 } = paginationDto
     const skip = (page - 1) * limit
@@ -293,7 +294,7 @@ export class CoursesService {
     })
 
     const averageRating = courseReviews.reduce((acc, review) => acc + review.rating, 0) / courseReviews.length
-    
+
     await this.prisma.course.update({
       where: { id: Number(courseId) },
       data: {
@@ -339,8 +340,8 @@ export class CoursesService {
     }
 
     // Calculate progress percentage
-    const progressPercentage = totalLessons > 0 
-      ? (completedLessons.length / totalLessons) * 100 
+    const progressPercentage = totalLessons > 0
+      ? (completedLessons.length / totalLessons) * 100
       : 0
 
     // Check if course is completed
@@ -382,53 +383,70 @@ export class CoursesService {
     })
   }
 
+  async addSection(courseId: string, createSectionDto: CourseSection) {
+    // Ensure the course exists before creating the section
+    const course = await this.prisma.course.findUnique({
+      where: { id: Number(courseId) },
+    });
+  
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+  
+    // Create the section and link it to the course
+    return this.prisma.courseSection.create({
+      data: {
+        ...createSectionDto, // This includes title, description, order, courseId
+        courseId: Number(courseId), // Ensure courseId is an integer
+        lessons: { connect: [] }, // Empty or predefined lessons (to be handled separately)
+      },
+    });
+  }
+  
+
+  async addLesson(sectionId: string, createLessonDto: CourseLesson) {
+    const section = await this.prisma.courseSection.findUnique({
+      where: { id: Number(sectionId) },
+    });
+  
+    if (!section) {
+      throw new NotFoundException("Section not found");
+    }
+  
+    return this.prisma.courseLesson.create({
+      data: {
+        ...createLessonDto,
+        sectionId: Number(sectionId),
+        id: Number(createLessonDto.id), // Ensure id is a number
+      },
+    });
+  }
+  
+  // ✅ Get all sections in a course
   async getSections(courseId: string) {
-    const course = await this.findOne(courseId)
-    return course.sections
+    const course = await this.prisma.course.findUnique({
+      where: { id: Number(courseId) },
+      include: { sections: true },
+    });
+
+    if (!course) {
+      throw new NotFoundException("Course not found");
+    }
+
+    return course.sections;
   }
 
-async getLessons(courseId: string) {
-  const sections = await this.prisma.courseSection.findMany({
-    where: { courseId: Number(courseId) },
-    include: {
-      lessons: {
-        orderBy: { order: 'asc' }
-      }
-    },
-    orderBy: { order: 'asc' }
-  });
-
-  // Define a type that extends CourseLesson with the additional section properties
-  type LessonWithSectionInfo = CourseLesson & {
-    sectionId: string;
-    sectionTitle: string;
-  };
-
-  // Initialize the array with the correct type
-  const lessons: LessonWithSectionInfo[] = [];
-
-  sections.forEach(section => {
-    section.lessons.forEach(lesson => {
-      // Create a new object with all lesson properties plus the section info
-      lessons.push({
-        id: String(lesson.id),
-        title: lesson.title,
-        description: lesson.description ?? undefined,
-        order: lesson.order,
-        type: lesson.type as LessonType,
-        content: lesson.content ?? undefined,
-        videoUrl: lesson.videoUrl ?? undefined,
-        duration: lesson.duration ?? undefined,
-        isPreview: lesson.isPreview,
-        sectionId: String(section.id),
-        createdAt: lesson.createdAt,
-        updatedAt: lesson.updatedAt,
-        // Add the additional section properties
-        sectionTitle: section.title
-      });
+  // ✅ Get all lessons in a section
+  async getLessons(sectionId: string) {
+    const section = await this.prisma.courseSection.findUnique({
+      where: { id: Number(sectionId) },
+      include: { lessons: true },
     });
-  });
 
-  return lessons;
-}
+    if (!section) {
+      throw new NotFoundException("Section not found");
+    }
+
+    return section.lessons;
+  }
 }
