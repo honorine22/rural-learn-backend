@@ -7,7 +7,7 @@ import { UpdateCourseDto } from "./dto/update-course.dto"
 import { PaginationDto } from "src/common/pagination.dto"
 import { EnrollmentStatus, LessonType } from "./enums/course.enum"
 import { CourseLesson } from "./entities/course-lesson.entity"
-import { CourseSection } from "./entities/course-section.entity"
+import { CreateCourseSectionDto } from "./entities/course-section.entity"
 
 @Injectable()
 export class CoursesService {
@@ -383,7 +383,7 @@ export class CoursesService {
     })
   }
 
-  async addSection(courseId: string, createSectionDto: CourseSection) {
+  async addSection(courseId: string, createSectionDto: CreateCourseSectionDto) {
     // Ensure the course exists before creating the section
     const course = await this.prisma.course.findUnique({
       where: { id: Number(courseId) },
@@ -402,7 +402,6 @@ export class CoursesService {
       },
     });
   }
-  
 
   async addLesson(sectionId: string, createLessonDto: CourseLesson) {
     const section = await this.prisma.courseSection.findUnique({

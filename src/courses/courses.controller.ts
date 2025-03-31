@@ -10,7 +10,7 @@ import { Request } from "express"
 import { CreateCourseDto } from "./dto/create-course.dto"
 import { PaginationDto } from "src/common/pagination.dto"
 import { UpdateCourseDto } from "./dto/update-course.dto"
-import { CourseSection } from "./entities/course-section.entity"
+import { CreateCourseSectionDto } from "./entities/course-section.entity"
 import { CourseLesson } from "./entities/course-lesson.entity"
 
 @ApiTags("courses")
@@ -97,7 +97,7 @@ export class CoursesController {
   @ApiOperation({ summary: "Add a new section to a course" })
   @ApiResponse({ status: 201, description: "Section created successfully" })
   @ApiResponse({ status: 404, description: "Course not found" })
-  async addSection(@Param("id") id: string, @Body() createSectionDto: CourseSection) {
+  async addSection(@Param("id") id: string, @Body() createSectionDto: CreateCourseSectionDto) {
     return this.coursesService.addSection(id, createSectionDto);
   }
 

@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { CourseSection } from "./course-section.entity";
 import { CourseEnrollment } from "./course-enrollment.entity";
 import { CourseReview } from "./course-review.entity";
 import { CourseLevel, CourseStatus } from "../enums/course.enum";
 import { UserDto } from "src/users/entity/user.entity";
+import { CreateCourseSectionDto } from "./course-section.entity";
 
 export class Course {
   @ApiProperty({ example: "cljf8c9s50000qw3j6qw4p8x1" })
@@ -70,8 +70,8 @@ export class Course {
   @ApiProperty({ example: "cljf8c9s50000qw3j6qw4p8x2" })
   instructorId: string;
 
-  @ApiProperty({ type: [CourseSection], isArray: true })
-  sections?: CourseSection[];
+  @ApiProperty({ type: [CreateCourseSectionDto], isArray: true })
+  sections?: CreateCourseSectionDto[];
 
   @ApiProperty({ type: [CourseEnrollment], isArray: true })
   enrollments?: CourseEnrollment[];
