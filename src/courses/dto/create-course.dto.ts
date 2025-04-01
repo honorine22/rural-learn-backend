@@ -1,82 +1,42 @@
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsArray, IsEnum, Min, Max } from "class-validator"
-import { ApiProperty } from "@nestjs/swagger"
-import { CourseLevel, CourseStatus } from "../enums/course.enum"
+
+import { IsString, IsOptional, IsInt, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 export class CreateCourseDto {
-    @ApiProperty({
-        example: "Introduction to JavaScript",
-        description: "The title of the course"
-    })
-    @IsString()
-    @IsNotEmpty()
-    title: string
+  @ApiProperty({ example: 'Introduction to Agriculture' })
+  @IsString()
+  title: string;
 
-    @ApiProperty({
-        example: "Learn the basics of JavaScript programming",
-        description: "Detailed description of the course content"
-    })
-    @IsString()
-    @IsNotEmpty()
-    description: string
+  @ApiProperty({ example: 'Learn the basics of agriculture and farming techniques.' })
+  @IsString()
+  description: string;
 
-    @ApiProperty({
-        example: "https://example.com/thumbnail.jpg",
-        required: false,
-        description: "URL to the course thumbnail image"
-    })
-    @IsString()
-    @IsOptional()
-    thumbnail?: string
+  @ApiProperty({ example: 'Agriculture' })
+  @IsString()
+  category: string;
 
-    @ApiProperty({
-        enum: CourseStatus,
-        enumName: 'CourseStatus',
-        example: CourseStatus.PUBLISHED,
-        default: CourseStatus.DRAFT,
-        description: "Current status of the course"
-    })
-    @IsEnum(CourseStatus)
-    @IsOptional()
-    status?: CourseStatus
+  @ApiProperty({ example: 'Beginner' })
+  @IsString()
+  level: string;
 
-    @ApiProperty({
-        example: 29.99,
-        default: 0,
-        description: "Price of the course in USD",
-        minimum: 0
-    })
-    @IsNumber()
-    @Min(0)
-    @IsOptional()
-    price?: number
+  @ApiProperty({ example: '2 weeks' })
+  @IsString()
+  duration: string;
 
-    @ApiProperty({
-        example: "10 hours",
-        required: false,
-        description: "Estimated time to complete the course"
-    })
-    @IsString()
-    @IsOptional()
-    duration?: string
+  @ApiPropertyOptional({ example: 'https://example.com/course-image.jpg' })
+  @IsOptional()
+  @IsString()
+  image?: string;
 
-    @ApiProperty({
-        example: ["javascript", "web development"],
-        required: false,
-        isArray: true,
-        description: "List of tags associated with the course"
-    })
-    @IsArray()
-    @IsString({ each: true })
-    @IsOptional()
-    tags?: string[]
+  @ApiPropertyOptional({ example: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  students?: number;
 
-    @ApiProperty({
-        enum: CourseLevel,
-        enumName: 'CourseLevel',
-        example: CourseLevel.BEGINNER,
-        default: CourseLevel.BEGINNER,
-        description: "Difficulty level of the course"
-    })
-    @IsEnum(CourseLevel)
-    @IsOptional()
-    level?: CourseLevel
+  @ApiPropertyOptional({ example: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  lessons?: number;
 }

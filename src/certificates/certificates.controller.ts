@@ -1,34 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { CertificatesService } from './certificates.service';
-import { CreateCertificateDto } from './dto/create-certificate.dto';
-import { UpdateCertificateDto } from './dto/update-certificate.dto';
 
+import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common';
+import { CertificatesService } from './certificates.service';
+import { GenerateCertificateDto } from './dto/generate-certificate.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+
+@ApiTags('certificates')
 @Controller('certificates')
 export class CertificatesController {
   constructor(private readonly certificatesService: CertificatesService) {}
 
-  @Post()
-  create(@Body() createCertificateDto: CreateCertificateDto) {
-    return this.certificatesService.create(createCertificateDto);
+  @UseGuards(JwtAuthGuard)
+  @Post('generate')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Generate a certificate' })
+  @ApiResponse({ status: 201, description: 'Certificate generated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Course or user not found' })
+  generate(@Body() generateCertificateDto: GenerateCertificateDto) {
+    return this.certificatesService.generate(
+      generateCertificateDto.userId,
+      generateCertificateDto.courseId
+    );
   }
 
-  @Get()
-  findAll() {
-    return this.certificatesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.certificatesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCertificateDto: UpdateCertificateDto) {
-    return this.certificatesService.update(+id, updateCertificateDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.certificatesService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  @Get('user/:userId')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get certificates by user ID' })
+  @ApiResponse({ status: 200, description: 'Return certificates by user ID' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  findByUserId(@Param('userId') userId: string) {
+    return this.certificatesService.findByUserId(userId);
   }
 }

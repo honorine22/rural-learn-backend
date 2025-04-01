@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,292 +10,84 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model UserProfile {
-  id                    Int       @id @default(autoincrement())
-  bio                   String?
-  location              String?
-  phoneNumber           String?
-  profilePicture        String?
-  dateOfBirth           DateTime?
-  gender                String?
-  education             String?
-  occupation            String?
-  interests             String?
-  language              String?
-  totalLearningHours    Int       @default(0)
-  totalCoursesCompleted Int       @default(0)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  user   User @relation(fields: [userId], references: [id])
-  userId Int  @unique
-}
-
-model AchievementType {
-  id           Int      @id @default(autoincrement())
-  code         String   @unique
-  name         String
-  description  String?
-  icon         String?
-  badgeImage   String?
-  triggerEvent String?
-  points       Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  achievements Achievement[]
-}
-
-model Achievement {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  typeId    Int
-  data      Json?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User            @relation(fields: [userId], references: [id])
-  type AchievementType @relation(fields: [typeId], references: [id])
-}
-
-model SystemMetric {
-  id           Int      @id @default(autoincrement())
-  timestamp    DateTime @default(now())
-  responseTime Float
-  cpuUsage     Float
-  memoryUsage  Float
-  requestCount Int
-  errorCount   Int
-  createdAt    DateTime @default(now())
-}
-
-model UserActivity {
-  id              Int      @id @default(autoincrement())
-  userId          Int
-  timestamp       DateTime @default(now())
-  action          String
-  resourceType    String
-  resourceId      Int
-  sessionDuration Int
-  ipAddress       String
-  userAgent       String
-  createdAt       DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id])
-}
-
-model Notification {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  title     String
-  message   String
-  type      String
-  data      Json?
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id])
-}
-
-model NotificationTemplate {
-  id        Int      @id @default(autoincrement())
-  type      String
-  title     String
-  message   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Post {
-  id               Int      @id @default(autoincrement())
-  content          String
-  upvotes          Int      @default(0)
-  downvotes        Int      @default(0)
-  isAcceptedAnswer Boolean  @default(false)
-  authorId         Int
-  topicId          Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  author  User    @relation(fields: [authorId], references: [id])
-  topic   Topic   @relation(fields: [topicId], references: [id])
-  replies Reply[]
-}
-
-model Reply {
-  id        Int      @id @default(autoincrement())
-  content   String
-  upvotes   Int      @default(0)
-  downvotes Int      @default(0)
-  authorId  Int
-  postId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  author User @relation(fields: [authorId], references: [id])
-  post   Post @relation(fields: [postId], references: [id])
-}
-
-model Topic {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  isActive    Boolean  @default(true)
-  isPinned    Boolean  @default(false)
-  viewCount   Int      @default(0)
-  creatorId   Int
-  courseId    Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  creator User    @relation(fields: [creatorId], references: [id])
-  course  Course? @relation(fields: [courseId], references: [id])
-  posts   Post[]
-}
-
-model CourseEnrollment {
-  id          Int       @id @default(autoincrement())
-  userId      Int
-  courseId    Int
-  status      String
-  completedAt DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  user     User            @relation(fields: [userId], references: [id])
-  course   Course          @relation(fields: [courseId], references: [id])
-  progress CourseProgress?
-}
-
-model CourseProgress {
-  id                 Int      @id @default(autoincrement())
-  enrollmentId       Int      @unique // Ensure it's unique for a one-to-one relation
-  completedLessons   Int[]
-  currentLesson      Int
-  progressPercentage Float
-  totalTimeSpent     Int
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  enrollment CourseEnrollment @relation(fields: [enrollmentId], references: [id])
-}
-
-model CourseReview {
-  id        Int      @id @default(autoincrement())
-  rating    Int
-  comment   String
-  userId    Int
-  courseId  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id])
-  course Course @relation(fields: [courseId], references: [id])
-}
-
-model CourseSection {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  order       Int
-  courseId    Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  course  Course         @relation(fields: [courseId], references: [id])
-  lessons CourseLesson[]
-}
-
-model CourseLesson {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?
-  order       Int
-  type        String
-  content     String?
-  videoUrl    String?
-  duration    String?
-  isPreview   Boolean  @default(false)
-  sectionId   Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  section CourseSection @relation(fields: [sectionId], references: [id])
+model User {
+  id           String         @id @default(uuid())
+  email        String         @unique
+  password     String
+  full_name    String?
+  avatar_url   String?
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @default(now())
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  lessonProgress UserLessonProgress[]
 }
 
 model Course {
-  id              Int      @id @default(autoincrement())
-  title           String
-  description     String?
-  thumbnail       String?
-  status          String
-  price           Float
-  duration        String?
-  tags            String[]
-  level           String
-  enrollmentCount Int      @default(0)
-  completionCount Int      @default(0)
-  averageRating   Float    @default(0.0)
-  reviewCount     Int      @default(0)
-  instructorId    Int
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  instructor  User               @relation(fields: [instructorId], references: [id])
-  sections    CourseSection[]
-  enrollments CourseEnrollment[]
-  reviews     CourseReview[]
-  Topic       Topic[]
-  Certificate Certificate[]
+  id          String       @id @default(uuid())
+  title       String
+  description String
+  category    String
+  level       String
+  duration    String
+  image       String?
+  students    Int?         @default(0)
+  lessons     Int?         @default(0)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now())
+  enrollments Enrollment[]
+  lessonsList Lesson[]
+  certificates Certificate[]
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  roles     String[]
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  profile           UserProfile?
-  enrollments       CourseEnrollment[]
-  instructedCourses Course[]
-  achievements      Achievement[]
-  certificates      Certificate[]
-  notifications     Notification[]
-  UserActivity      UserActivity[]
-  Post              Post[]
-  Reply             Reply[]
-  Topic             Topic[]
-  CourseReview      CourseReview[]
+model Lesson {
+  id          String       @id @default(uuid())
+  title       String
+  content     String
+  duration    Int
+  order_index Int
+  video_url   String?
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @default(now())
+  course      Course       @relation(fields: [course_id], references: [id])
+  course_id   String
+  progress    UserLessonProgress[]
 }
 
-model CertificateTemplate {
-  id              Int           @id @default(autoincrement())
-  name            String
-  description     String        @db.Text
-  backgroundImage String
-  isDefault       Boolean       @default(false)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  Certificate     Certificate[]
+model Enrollment {
+  id            String   @id @default(uuid())
+  progress      Int      @default(0)
+  completed     Boolean  @default(false)
+  enrolled_at   DateTime @default(now())
+  last_accessed DateTime @default(now())
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       String
+  course        Course   @relation(fields: [course_id], references: [id])
+  course_id     String
+
+  @@unique([user_id, course_id])
 }
 
 model Certificate {
-  id                Int      @id @default(autoincrement())
-  userId            Int
-  courseId          Int
-  templateId        Int
-  certificateNumber String   @unique
-  issueDate         DateTime
-  data              Json
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id              String   @id @default(uuid())
+  issue_date      DateTime @default(now())
+  certificate_url String?
+  user            User     @relation(fields: [user_id], references: [id])
+  user_id         String
+  course          Course   @relation(fields: [course_id], references: [id])
+  course_id       String
 
-  user     User                @relation(fields: [userId], references: [id])
-  course   Course              @relation(fields: [courseId], references: [id])
-  template CertificateTemplate @relation(fields: [templateId], references: [id])
+  @@unique([user_id, course_id])
+}
+
+model UserLessonProgress {
+  id            String   @id @default(uuid())
+  completed     Boolean  @default(false)
+  last_accessed DateTime @default(now())
+  user          User     @relation(fields: [user_id], references: [id])
+  user_id       String
+  lesson        Lesson   @relation(fields: [lesson_id], references: [id])
+  lesson_id     String
+
+  @@unique([user_id, lesson_id])
 }
